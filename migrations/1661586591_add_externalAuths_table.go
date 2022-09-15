@@ -6,12 +6,12 @@ func init() {
 	AppMigrations.Register(func(db dbx.Builder) error {
 		_, createErr := db.NewQuery(`
 			CREATE TABLE {{_externalAuths}} (
-				[[id]]         TEXT PRIMARY KEY,
+				[[id]]         VARCHAR(100) PRIMARY KEY,
 				[[userId]]     TEXT NOT NULL,
 				[[provider]]   TEXT NOT NULL,
 				[[providerId]] TEXT NOT NULL,
-				[[created]]    TEXT DEFAULT "" NOT NULL,
-				[[updated]]    TEXT DEFAULT "" NOT NULL,
+				[[created]]    VARCHAR(100) DEFAULT '' NOT NULL,
+				[[updated]]    VARCHAR(100) DEFAULT '' NOT NULL,
 				---
 				FOREIGN KEY ([[userId]]) REFERENCES {{_users}} ([[id]]) ON UPDATE CASCADE ON DELETE CASCADE
 			);
@@ -28,15 +28,15 @@ func init() {
 		_, alterErr := db.NewQuery(`
 			-- crate new users table
 			CREATE TABLE {{_newUsers}} (
-				[[id]]                     TEXT PRIMARY KEY,
+				[[id]]                     VARCHAR(100) PRIMARY KEY,
 				[[verified]]               BOOLEAN DEFAULT FALSE NOT NULL,
 				[[email]]                  TEXT DEFAULT "" NOT NULL,
 				[[tokenKey]]               TEXT NOT NULL,
 				[[passwordHash]]           TEXT NOT NULL,
 				[[lastResetSentAt]]        TEXT DEFAULT "" NOT NULL,
 				[[lastVerificationSentAt]] TEXT DEFAULT "" NOT NULL,
-				[[created]]                TEXT DEFAULT "" NOT NULL,
-				[[updated]]                TEXT DEFAULT "" NOT NULL
+				[[created]]                VARCHAR(100) DEFAULT "" NOT NULL,
+				[[updated]]                VARCHAR(100) DEFAULT "" NOT NULL
 			);
 
 			-- copy all data from the old users table to the new one
