@@ -176,14 +176,27 @@ func (r *Runner) Down(toRevertCount int) ([]string, error) {
 }
 
 func (r *Runner) createMigrationsTable() error {
-	rawQuery := fmt.Sprintf(
-		"CREATE TABLE IF NOT EXISTS %v (file VARCHAR(255) PRIMARY KEY NOT NULL, applied INTEGER NOT NULL)",
-		r.db.QuoteTableName(r.tableName),
-	)
 
-	_, err := r.db.NewQuery(rawQuery).Execute()
+	//Sql server query to check if a table exists
+	checkQuery := fmt.Sprintf("SELECT 1 FROM sys.tables WHERE name = '%s'", r.tableName)
 
-	return err
+	result, _ := r.db.NewQuery(checkQuery).Execute()
+
+	rows, _ := result.RowsAffected()
+
+	if rows == 0 {
+
+    		rawQuery := fmt.Sprintf(
+    			"CREATE TABLE %v (fileName VARCHAR(255) PRIMARY KEY NOT NULL, applied INTEGER NOT NULL)",
+    			r.db.QuoteTableName(r.tableName),
+    		)
+
+    	_, err := r.db.NewQuery(rawQuery).Execute()
+
+    		return err
+    	}
+    	return nil
+
 }
 
 func (r *Runner) isMigrationApplied(tx dbx.Builder, file string) bool {
@@ -191,7 +204,7 @@ func (r *Runner) isMigrationApplied(tx dbx.Builder, file string) bool {
 
 	err := tx.Select("count(*)").
 		From(r.tableName).
-		Where(dbx.HashExp{"file": file}).
+		Where(dbx.HashExp{"fileName": file}).
 		Limit(1).
 		Row(&exists)
 
@@ -200,7 +213,7 @@ func (r *Runner) isMigrationApplied(tx dbx.Builder, file string) bool {
 
 func (r *Runner) saveAppliedMigration(tx dbx.Builder, file string) error {
 	_, err := tx.Insert(r.tableName, dbx.Params{
-		"file":    file,
+		"fileName":    file,
 		"applied": time.Now().Unix(),
 	}).Execute()
 
@@ -208,7 +221,7 @@ func (r *Runner) saveAppliedMigration(tx dbx.Builder, file string) error {
 }
 
 func (r *Runner) saveRevertedMigration(tx dbx.Builder, file string) error {
-	_, err := tx.Delete(r.tableName, dbx.HashExp{"file": file}).Execute()
+	_, err := tx.Delete(r.tableName, dbx.HashExp{"fileName": file}).Execute()
 
 	return err
 }

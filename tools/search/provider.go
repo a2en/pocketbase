@@ -2,6 +2,7 @@ package search
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"net/url"
 	"strconv"
@@ -179,7 +180,7 @@ func (s *Provider) Exec(items any) (*Result, error) {
 			modelsQuery.AndWhere(expr)
 		}
 	}
-
+	countQuery := modelsQuery
 	// apply sorting
 	for _, sortField := range s.sort {
 		expr, err := sortField.BuildExpr(s.fieldResolver)
@@ -187,7 +188,10 @@ func (s *Provider) Exec(items any) (*Result, error) {
 			return nil, err
 		}
 		if expr != "" {
+			
 			modelsQuery.AndOrderBy(expr)
+			//print go struct
+			fmt.Printf("modelsQuery.Build().SQL(): %v\n", modelsQuery.Build().SQL())
 		}
 	}
 
@@ -198,12 +202,13 @@ func (s *Provider) Exec(items any) (*Result, error) {
 
 	// count
 	var totalCount int64
-	countQuery := modelsQuery
+	
 	countQuery.Distinct(false).Select("COUNT(*)")
 	if s.countColumn != "" {
 		countQuery.Select("COUNT(DISTINCT(" + s.countColumn + "))")
 	}
 	if err := countQuery.Row(&totalCount); err != nil {
+		fmt.Printf("err: %v\n", err)
 		return nil, err
 	}
 

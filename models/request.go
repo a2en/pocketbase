@@ -15,7 +15,7 @@ type Request struct {
 	BaseModel
 
 	Url       string        `db:"url" json:"url"`
-	Method    string        `db:"method" json:"method"`
+	Method    string        `db:"methodName" json:"method"`
 	Status    int           `db:"status" json:"status"`
 	Auth      string        `db:"auth" json:"auth"`
 	UserIp    string        `db:"userIp" json:"userIp"`

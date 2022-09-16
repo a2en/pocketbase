@@ -76,6 +76,7 @@ func (dao *Dao) FindRecordsByIds(
 // If no records are found, returns an empty slice.
 //
 // Example:
+//
 //	expr := dbx.HashExp{"email": "test@example.com"}
 //	dao.FindRecordsByExpr(collection, expr)
 func (dao *Dao) FindRecordsByExpr(collection *models.Collection, expr dbx.Expression) ([]*models.Record, error) {
@@ -278,10 +279,11 @@ func (dao *Dao) DeleteRecord(record *models.Record) error {
 func (dao *Dao) SyncRecordTableSchema(newCollection *models.Collection, oldCollection *models.Collection) error {
 	// create
 	if oldCollection == nil {
+		fmt.Println("Creating record table for collection:", newCollection.Name)
 		cols := map[string]string{
-			schema.ReservedFieldNameId:      "TEXT PRIMARY KEY",
-			schema.ReservedFieldNameCreated: `TEXT DEFAULT "" NOT NULL`,
-			schema.ReservedFieldNameUpdated: `TEXT DEFAULT "" NOT NULL`,
+			schema.ReservedFieldNameId:      "VARCHAR(100) PRIMARY KEY",
+			schema.ReservedFieldNameCreated: `VARCHAR(100) DEFAULT '' NOT NULL`,
+			schema.ReservedFieldNameUpdated: `VARCHAR(100) DEFAULT '' NOT NULL`,
 		}
 
 		tableName := newCollection.Name
@@ -294,12 +296,14 @@ func (dao *Dao) SyncRecordTableSchema(newCollection *models.Collection, oldColle
 		// create table
 		_, tableErr := dao.DB().CreateTable(tableName, cols).Execute()
 		if tableErr != nil {
+			fmt.Println("Error while creating table:", tableErr)
 			return tableErr
 		}
 
 		// add index on the base `created` column
 		_, indexErr := dao.DB().CreateIndex(tableName, tableName+"_created_idx", "created").Execute()
 		if indexErr != nil {
+			fmt.Sprintln("Error while creating index:", indexErr)
 			return indexErr
 		}
 
@@ -317,6 +321,7 @@ func (dao *Dao) SyncRecordTableSchema(newCollection *models.Collection, oldColle
 		if !strings.EqualFold(oldTableName, newTableName) {
 			_, err := dao.DB().RenameTable(oldTableName, newTableName).Execute()
 			if err != nil {
+				fmt.Println("Error while renaming table:", err)
 				return err
 			}
 		}
@@ -329,6 +334,7 @@ func (dao *Dao) SyncRecordTableSchema(newCollection *models.Collection, oldColle
 
 			_, err := txDao.DB().DropColumn(newTableName, oldField.Name).Execute()
 			if err != nil {
+				fmt.Println("Error while dropping column:", err)
 				return err
 			}
 		}
@@ -350,6 +356,7 @@ func (dao *Dao) SyncRecordTableSchema(newCollection *models.Collection, oldColle
 				// add
 				_, err := txDao.DB().AddColumn(newTableName, tempName, field.ColDefinition()).Execute()
 				if err != nil {
+					fmt.Println("Error while adding column:", err)
 					return err
 				}
 			} else if oldField.Name != field.Name {
@@ -357,8 +364,9 @@ func (dao *Dao) SyncRecordTableSchema(newCollection *models.Collection, oldColle
 				toRename[tempName] = field.Name
 
 				// rename
-				_, err := txDao.DB().RenameColumn(newTableName, oldField.Name, tempName).Execute()
+				_, err := txDao.RenameColumn(newTableName, oldField.Name, tempName).Execute()
 				if err != nil {
+					fmt.Println("Error while renaming column:", err)
 					return err
 				}
 			}
@@ -366,8 +374,10 @@ func (dao *Dao) SyncRecordTableSchema(newCollection *models.Collection, oldColle
 
 		// set the actual columns name
 		for tempName, actualName := range toRename {
-			_, err := txDao.DB().RenameColumn(newTableName, tempName, actualName).Execute()
+			fmt.Println("Renaming column:", tempName, "to", actualName)
+			_, err := txDao.RenameColumn(newTableName, tempName, actualName).Execute()
 			if err != nil {
+				fmt.Println("Error while renaming actual column:", err)
 				return err
 			}
 		}

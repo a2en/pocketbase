@@ -90,11 +90,11 @@ func (f *SchemaField) ColDefinition() string {
 	case FieldTypeNumber:
 		return "REAL DEFAULT 0"
 	case FieldTypeBool:
-		return "Boolean DEFAULT FALSE"
+		return "BIT DEFAULT 0"
 	case FieldTypeJson:
-		return "JSON DEFAULT NULL"
+		return "NVARCHAR(MAX) DEFAULT ''"
 	default:
-		return "TEXT DEFAULT ''"
+		return "NVARCHAR(MAX) DEFAULT ''"
 	}
 }
 

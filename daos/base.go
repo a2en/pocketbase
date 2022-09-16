@@ -36,6 +36,12 @@ func (dao *Dao) DB() dbx.Builder {
 	return dao.db
 }
 
+
+func (dao *Dao) RenameColumn(table, oldName, newName string) *dbx.Query {
+	sql := fmt.Sprintf("sp_rename '%v.%v', '%v', 'COLUMN'", table, oldName, newName)
+	return dao.db.NewQuery(sql)
+}
+
 // ModelQuery creates a new query with preset Select and From fields
 // based on the provided model argument.
 func (dao *Dao) ModelQuery(m models.Model) *dbx.SelectQuery {

@@ -1,6 +1,7 @@
 package daos
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/pocketbase/dbx"
@@ -31,7 +32,7 @@ func (dao *Dao) FindRequestById(id string) (*models.Request, error) {
 
 type RequestsStatsItem struct {
 	Total int            `db:"total" json:"total"`
-	Date  types.DateTime `db:"date" json:"date"`
+	Date  types.DateTime `db:"dated" json:"date"`
 }
 
 // RequestsStats returns hourly grouped requests logs statistics.
@@ -39,14 +40,16 @@ func (dao *Dao) RequestsStats(expr dbx.Expression) ([]*RequestsStatsItem, error)
 	result := []*RequestsStatsItem{}
 
 	query := dao.RequestQuery().
-		Select("count(id) as total", "strftime('%Y-%m-%d %H:00:00', created) as date").
-		GroupBy("date")
+		Select("count(id) as total", "_requests.created as dated").
+		GroupBy("created")
 
 	if expr != nil {
 		query.AndWhere(expr)
 	}
 
 	err := query.All(&result)
+
+	fmt.Println("req stat err ", query.Build().SQL())
 
 	return result, err
 }
@@ -57,7 +60,7 @@ func (dao *Dao) DeleteOldRequests(createdBefore time.Time) error {
 	tableName := m.TableName()
 
 	formattedDate := createdBefore.UTC().Format(types.DefaultDateLayout)
-	expr := dbx.NewExp("[[created]] <= {:date}", dbx.Params{"date": formattedDate})
+	expr := dbx.NewExp("[[created]] <= {:dated}", dbx.Params{"dated": formattedDate})
 
 	_, err := dao.DB().Delete(tableName, expr).Execute()
 

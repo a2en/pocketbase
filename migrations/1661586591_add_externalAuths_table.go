@@ -7,9 +7,9 @@ func init() {
 		_, createErr := db.NewQuery(`
 			CREATE TABLE {{_externalAuths}} (
 				[[id]]         VARCHAR(100) PRIMARY KEY,
-				[[userId]]     TEXT NOT NULL,
-				[[provider]]   TEXT NOT NULL,
-				[[providerId]] TEXT NOT NULL,
+				[[userId]]     VARCHAR(100) NOT NULL,
+				[[provider]]   VARCHAR(100) NOT NULL,
+				[[providerId]] VARCHAR(100) NOT NULL,
 				[[created]]    VARCHAR(100) DEFAULT '' NOT NULL,
 				[[updated]]    VARCHAR(100) DEFAULT '' NOT NULL,
 				---
@@ -21,39 +21,6 @@ func init() {
 		`).Execute()
 		if createErr != nil {
 			return createErr
-		}
-
-		// remove the unique email index from the _users table and
-		// replace it with partial index
-		_, alterErr := db.NewQuery(`
-			-- crate new users table
-			CREATE TABLE {{_newUsers}} (
-				[[id]]                     VARCHAR(100) PRIMARY KEY,
-				[[verified]]               BOOLEAN DEFAULT FALSE NOT NULL,
-				[[email]]                  TEXT DEFAULT "" NOT NULL,
-				[[tokenKey]]               TEXT NOT NULL,
-				[[passwordHash]]           TEXT NOT NULL,
-				[[lastResetSentAt]]        TEXT DEFAULT "" NOT NULL,
-				[[lastVerificationSentAt]] TEXT DEFAULT "" NOT NULL,
-				[[created]]                VARCHAR(100) DEFAULT "" NOT NULL,
-				[[updated]]                VARCHAR(100) DEFAULT "" NOT NULL
-			);
-
-			-- copy all data from the old users table to the new one
-			INSERT INTO {{_newUsers}} SELECT * FROM {{_users}};
-
-			-- drop old table
-			DROP TABLE {{_users}};
-
-			-- rename new table
-			ALTER TABLE {{_newUsers}} RENAME TO {{_users}};
-
-			-- create named indexes
-			CREATE UNIQUE INDEX _users_email_idx ON {{_users}} ([[email]]) WHERE [[email]] != "";
-			CREATE UNIQUE INDEX _users_tokenKey_idx ON {{_users}} ([[tokenKey]]);
-		`).Execute()
-		if alterErr != nil {
-			return alterErr
 		}
 
 		return nil

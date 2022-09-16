@@ -15,7 +15,7 @@
 
     export let filter = "";
     export let presets = "";
-    export let sort = "-rowid";
+    export let sort = "-created";
 
     let items = [];
     let currentPage = 1;

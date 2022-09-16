@@ -26,7 +26,7 @@ type logsApi struct {
 }
 
 var requestFilterFields = []string{
-	"rowid", "id", "created", "updated",
+	"id", "created", "updated",
 	"url", "method", "status", "auth",
 	"remoteIp", "userIp", "referer", "userAgent",
 }

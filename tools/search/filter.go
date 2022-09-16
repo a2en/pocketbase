@@ -42,7 +42,9 @@ func (f FilterData) BuildExpr(fieldResolver FieldResolver) (dbx.Expression, erro
 }
 
 func (f FilterData) build(data []fexpr.ExprGroup, fieldResolver FieldResolver) (dbx.Expression, error) {
+	fmt.Println("filter build", data)
 	if len(data) == 0 {
+		fmt.Println("filter build empty")
 		return nil, errors.New("Empty filter expression.")
 	}
 
@@ -88,6 +90,7 @@ func (f FilterData) resolveTokenizedExpr(expr fexpr.Expr, fieldResolver FieldRes
 		return nil, fmt.Errorf("Invalid right operand %q - %v.", expr.Right.Literal, rErr)
 	}
 
+	fmt.Println("filter resolveTokenizedExpr", lName, lParams, rName, rParams)
 	// merge both operands parameters (if any)
 	params := dbx.Params{}
 	for k, v := range lParams {

@@ -35,54 +35,68 @@ func Register(
 func init() {
 	AppMigrations.Register(func(db dbx.Builder) error {
 		_, tablesErr := db.NewQuery(`
-			CREATE TABLE {{_admins}} (
-				[[id]]              TEXT PRIMARY KEY,
-				[[avatar]]          INTEGER DEFAULT 0 NOT NULL,
-				[[email]]           TEXT UNIQUE NOT NULL,
-				[[tokenKey]]        TEXT UNIQUE NOT NULL,
-				[[passwordHash]]    TEXT NOT NULL,
-				[[lastResetSentAt]] TEXT DEFAULT "" NOT NULL,
-				[[created]]         TEXT DEFAULT "" NOT NULL,
-				[[updated]]         TEXT DEFAULT "" NOT NULL
-			);
-
-			CREATE TABLE {{_users}} (
-				[[id]]                     TEXT PRIMARY KEY,
-				[[verified]]               BOOLEAN DEFAULT FALSE NOT NULL,
-				[[email]]                  TEXT UNIQUE NOT NULL,
-				[[tokenKey]]               TEXT UNIQUE NOT NULL,
-				[[passwordHash]]           TEXT NOT NULL,
-				[[lastResetSentAt]]        TEXT DEFAULT "" NOT NULL,
-				[[lastVerificationSentAt]] TEXT DEFAULT "" NOT NULL,
-				[[created]]                TEXT DEFAULT "" NOT NULL,
-				[[updated]]                TEXT DEFAULT "" NOT NULL
-			);
-
-			CREATE TABLE {{_collections}} (
-				[[id]]         TEXT PRIMARY KEY,
-				[[system]]     BOOLEAN DEFAULT FALSE NOT NULL,
-				[[name]]       TEXT UNIQUE NOT NULL,
-				[[schema]]     JSON DEFAULT "[]" NOT NULL,
-				[[listRule]]   TEXT DEFAULT NULL,
-				[[viewRule]]   TEXT DEFAULT NULL,
-				[[createRule]] TEXT DEFAULT NULL,
-				[[updateRule]] TEXT DEFAULT NULL,
-				[[deleteRule]] TEXT DEFAULT NULL,
-				[[created]]    TEXT DEFAULT "" NOT NULL,
-				[[updated]]    TEXT DEFAULT "" NOT NULL
-			);
-
-			CREATE TABLE {{_params}} (
-				[[id]]      TEXT PRIMARY KEY,
-				[[key]]     TEXT UNIQUE NOT NULL,
-				[[value]]   JSON DEFAULT NULL,
-				[[created]] TEXT DEFAULT "" NOT NULL,
-				[[updated]] TEXT DEFAULT "" NOT NULL
-			);
-		`).Execute()
+		CREATE TABLE {{_admins}} (
+			[[id]]              VARCHAR(100) PRIMARY KEY,
+			[[avatar]]          INTEGER DEFAULT 0 NOT NULL,
+			[[email]]           VARCHAR(200) UNIQUE NOT NULL,
+			[[tokenKey]]        VARCHAR(200) UNIQUE NOT NULL,
+			[[passwordHash]]    TEXT NOT NULL,
+			[[lastResetSentAt]] TEXT DEFAULT '' NOT NULL,
+			[[created]]         VARCHAR(200) DEFAULT '' NOT NULL,
+			[[updated]]         VARCHAR(200) DEFAULT '' NOT NULL
+		);
+	`).Execute()
 		if tablesErr != nil {
 			return tablesErr
 		}
+
+		_, tablesUsersErr := db.NewQuery(`
+	CREATE TABLE {{_users}} (
+		[[id]]                     VARCHAR(100) PRIMARY KEY,
+		[[verified]]               BIT NOT NULL,
+		[[email]]                  VARCHAR(200) NOT NULL,
+		[[tokenKey]]               VARCHAR(200) NOT NULL,
+		[[passwordHash]]           TEXT NOT NULL,
+		[[lastResetSentAt]]        TEXT DEFAULT '' NOT NULL,
+		[[lastVerificationSentAt]] TEXT DEFAULT '' NOT NULL,
+		[[created]]                VARCHAR(100) DEFAULT '' NOT NULL,
+		[[updated]]                VARCHAR(100) DEFAULT '' NOT NULL
+	);
+	CREATE UNIQUE INDEX _users_email_idx ON {{_users}} ([[email]]) WHERE [[email]] != '';
+	CREATE UNIQUE INDEX _users_tokenKey_idx ON {{_users}} ([[tokenKey]]);
+	`).Execute()
+
+		if tablesUsersErr != nil {
+			return tablesUsersErr
+		}
+		_, tablesColErr := db.NewQuery(`
+	CREATE TABLE {{_collections}} (
+		[[id]]         VARCHAR(100) PRIMARY KEY,
+		[[system]]     BIT NOT NULL,
+		[[name]]       VARCHAR(100) UNIQUE NOT NULL,
+		[[schema]]     TEXT NOT NULL,
+		[[listRule]]   TEXT DEFAULT NULL,
+		[[viewRule]]   TEXT DEFAULT NULL,
+		[[createRule]] TEXT DEFAULT NULL,
+		[[updateRule]] TEXT DEFAULT NULL,
+		[[deleteRule]] TEXT DEFAULT NULL,
+		[[created]]    VARCHAR(100) DEFAULT '' NOT NULL,
+		[[updated]]    VARCHAR(100) DEFAULT '' NOT NULL
+	);
+
+	`).Execute()
+		if tablesColErr != nil {
+			return tablesColErr
+		}
+		db.NewQuery(`
+	CREATE TABLE {{_params}} (
+		[[id]]      VARCHAR(100) PRIMARY KEY,
+		[[key]]     VARCHAR(100) UNIQUE NOT NULL,
+		[[value]]   TEXT DEFAULT NULL,
+		[[created]] VARCHAR(100) DEFAULT '' NOT NULL,
+		[[updated]] VARCHAR(100) DEFAULT '' NOT NULL
+	);
+	`).Execute()
 
 		// inserts the system profiles collection
 		// -----------------------------------------------------------
