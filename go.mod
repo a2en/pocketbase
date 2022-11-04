@@ -12,10 +12,10 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.1
 	github.com/ganigeorgiev/fexpr v0.1.1
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
-	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/labstack/echo/v5 v5.0.0-20220201181537-ed2888cfa198
 	github.com/pocketbase/dbx v1.6.0
+	github.com/sfomuseum/go-csvdict v1.0.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.5.0
 	gocloud.dev v0.26.0
@@ -59,9 +59,7 @@ require (
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
-	github.com/minus5/gofreetds v0.0.0-20200826115934-6705a38c49ca // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
-	github.com/sfomuseum/go-csvdict v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
