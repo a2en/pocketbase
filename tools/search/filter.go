@@ -42,7 +42,6 @@ func (f FilterData) BuildExpr(fieldResolver FieldResolver) (dbx.Expression, erro
 }
 
 func (f FilterData) build(data []fexpr.ExprGroup, fieldResolver FieldResolver) (dbx.Expression, error) {
-	fmt.Println("filter build", data)
 	if len(data) == 0 {
 		fmt.Println("filter build empty")
 		return nil, errors.New("Empty filter expression.")
@@ -66,6 +65,7 @@ func (f FilterData) build(data []fexpr.ExprGroup, fieldResolver FieldResolver) (
 		}
 
 		if exprErr != nil {
+			fmt.Println("filter build error", exprErr)
 			return nil, exprErr
 		}
 
@@ -159,8 +159,12 @@ func (f FilterData) resolveToken(token fexpr.Token, fieldResolver FieldResolver)
 			if v, ok := m[strings.ToLower(token.Literal)]; ok {
 				return v, nil, nil
 			}
+			fmt.Println("inside filter resolveToken", name, params,err)
+
 			return "", nil, err
 		}
+
+		fmt.Println("filter resolveToken", name, params,err)
 
 		return name, params, err
 	case fexpr.TokenText:

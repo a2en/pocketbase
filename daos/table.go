@@ -9,8 +9,8 @@ func (dao *Dao) HasTable(tableName string) bool {
 	var exists bool
 
 	err := dao.DB().Select("count(*)").
-		From("sqlite_schema").
-		AndWhere(dbx.HashExp{"type": "table"}).
+		From("SysObjects").
+		AndWhere(dbx.HashExp{"xType": "U"}).
 		AndWhere(dbx.NewExp("LOWER([[name]])=LOWER({:tableName})", dbx.Params{"tableName": tableName})).
 		Limit(1).
 		Row(&exists)

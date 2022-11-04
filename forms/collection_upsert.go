@@ -246,6 +246,7 @@ func (form *CollectionUpsert) checkRule(value any) error {
 // modify the form behavior before persisting it.
 func (form *CollectionUpsert) Submit(interceptors ...InterceptorFunc) error {
 	if err := form.Validate(); err != nil {
+		println("validate "+err.Error()+"\n")
 		return err
 	}
 
