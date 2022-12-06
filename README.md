@@ -1,4 +1,18 @@
 ## This fork adds support for sql server in pocketbase
+
+Set the credentials of SQL server in environment variables
+
+    DBSERVER = SQL server  address eg : 192.168.29.225
+
+    DBPORT = SQL server port eg: 1433
+
+    DBUSER = SQL server username
+
+    DBPASS = SQL server password
+
+    DBNAME = Name of the database you created for pocketbase
+
+
 <p align="center">
     <a href="https://pocketbase.io" target="_blank" rel="noopener">
         <img src="https://i.imgur.com/ZfD4BHO.png" alt="PocketBase - open source backend in 1 file" />
